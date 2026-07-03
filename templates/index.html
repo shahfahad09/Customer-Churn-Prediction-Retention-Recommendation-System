@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Churn Prediction</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="logo-box">📊</div>
+    <div>
+      <h1>Customer <span>Churn</span> Prediction System</h1>
+      <p>Predict telecom customer churn risk using Machine Learning</p>
+      <a href="https://shahfahad09.github.io/-khan/" target="_blank" class="dev-link">
+        Developed by Md Shahfahad Khan
+      </a>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="form-card">
+      <h2>Customer Details</h2>
+
+      <form action="/predict" method="POST" class="form-grid">
+
+        <div class="field">
+          <label>Gender</label>
+          <select name="gender" required>
+            <option value="" disabled {% if not form_data.get('gender') %}selected{% endif %}>Select gender</option>
+            <option value="Male" {% if form_data.get('gender') == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if form_data.get('gender') == 'Female' %}selected{% endif %}>Female</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Age 50 or Above</label>
+          <select name="SeniorCitizen" required>
+            <option value="" disabled {% if not form_data.get('SeniorCitizen') %}selected{% endif %}>Select age group</option>
+            <option value="0" {% if form_data.get('SeniorCitizen')|string == '0' %}selected{% endif %}>No</option>
+            <option value="1" {% if form_data.get('SeniorCitizen')|string == '1' %}selected{% endif %}>Yes (50+)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Marital Status</label>
+          <select name="Partner" required>
+            <option value="" disabled {% if not form_data.get('Partner') %}selected{% endif %}>Select marital status</option>
+            <option value="Yes" {% if form_data.get('Partner') == 'Yes' %}selected{% endif %}>Married</option>
+            <option value="No" {% if form_data.get('Partner') == 'No' %}selected{% endif %}>Single</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Family Dependents</label>
+          <select name="Dependents" required>
+            <option value="" disabled {% if not form_data.get('Dependents') %}selected{% endif %}>Select family dependents</option>
+            <option value="Yes" {% if form_data.get('Dependents') == 'Yes' %}selected{% endif %}>Yes (Children / Parents)</option>
+            <option value="No" {% if form_data.get('Dependents') == 'No' %}selected{% endif %}>No</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Customer Since (Months)</label>
+          <input type="number" name="tenure" min="0" max="72" placeholder="Example: 12" value="{{ form_data.get('tenure','') }}" required />
+        </div>
+
+        <div class="field">
+          <label>Phone Connection</label>
+          <select name="PhoneService" required>
+            <option value="" disabled {% if not form_data.get('PhoneService') %}selected{% endif %}>Select phone connection</option>
+            <option value="Yes" {% if form_data.get('PhoneService') == 'Yes' %}selected{% endif %}>Available</option>
+            <option value="No" {% if form_data.get('PhoneService') == 'No' %}selected{% endif %}>Not Available</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Multiple Phone Lines</label>
+          <select name="MultipleLines" required>
+            <option value="" disabled {% if not form_data.get('MultipleLines') %}selected{% endif %}>Select phone lines</option>
+            <option value="No" {% if form_data.get('MultipleLines') == 'No' %}selected{% endif %}>Single Line</option>
+            <option value="Yes" {% if form_data.get('MultipleLines') == 'Yes' %}selected{% endif %}>Multiple Lines</option>
+            <option value="No phone service" {% if form_data.get('MultipleLines') == 'No phone service' %}selected{% endif %}>No Phone Connection</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Internet Connection</label>
+          <select name="InternetService" required>
+            <option value="" disabled {% if not form_data.get('InternetService') %}selected{% endif %}>Select internet connection</option>
+            <option value="DSL" {% if form_data.get('InternetService') == 'DSL' %}selected{% endif %}>DSL Broadband</option>
+            <option value="Fiber optic" {% if form_data.get('InternetService') == 'Fiber optic' %}selected{% endif %}>Fiber Internet</option>
+            <option value="No" {% if form_data.get('InternetService') == 'No' %}selected{% endif %}>No Internet</option>
+          </select>
+        </div>
+
+        {% set service_options = [
+  ('No', 'Not Subscribed'),
+  ('Yes', 'Subscribed')
+] %}
+
+        {% for field, label, hint in [
+          ('OnlineSecurity','Internet Security','Select internet security'),
+          ('OnlineBackup','Cloud Backup','Select cloud backup'),
+          ('DeviceProtection','Device Protection Plan','Select device protection'),
+          ('TechSupport','Premium Tech Support','Select tech support'),
+          ('StreamingTV','TV Streaming','Select TV streaming'),
+          ('StreamingMovies','Movie Streaming','Select movie streaming')
+        ] %}
+        <div class="field">
+          <label>{{ label }}</label>
+          <select name="{{ field }}" required>
+            <option value="" disabled {% if not form_data.get(field) %}selected{% endif %}>{{ hint }}</option>
+            {% for value, text in service_options %}
+            <option value="{{ value }}" {% if form_data.get(field) == value %}selected{% endif %}>{{ text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+
+        <div class="field">
+          <label>Subscription Plan</label>
+          <select name="Contract" required>
+            <option value="" disabled {% if not form_data.get('Contract') %}selected{% endif %}>Select subscription plan</option>
+            <option value="Month-to-month" {% if form_data.get('Contract') == 'Month-to-month' %}selected{% endif %}>Monthly Plan</option>
+            <option value="One year" {% if form_data.get('Contract') == 'One year' %}selected{% endif %}>1 Year Plan</option>
+            <option value="Two year" {% if form_data.get('Contract') == 'Two year' %}selected{% endif %}>2 Year Plan</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Digital Billing</label>
+          <select name="PaperlessBilling" required>
+            <option value="" disabled {% if not form_data.get('PaperlessBilling') %}selected{% endif %}>Select billing type</option>
+            <option value="Yes" {% if form_data.get('PaperlessBilling') == 'Yes' %}selected{% endif %}>Enabled</option>
+            <option value="No" {% if form_data.get('PaperlessBilling') == 'No' %}selected{% endif %}>Disabled</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Payment Method</label>
+          <select name="PaymentMethod" required>
+            <option value="" disabled {% if not form_data.get('PaymentMethod') %}selected{% endif %}>Select payment method</option>
+            <option value="Electronic check" {% if form_data.get('PaymentMethod') == 'Electronic check' %}selected{% endif %}>Online Bank Payment</option>
+            <option value="Mailed check" {% if form_data.get('PaymentMethod') == 'Mailed check' %}selected{% endif %}>Cheque by Mail</option>
+            <option value="Bank transfer (automatic)" {% if form_data.get('PaymentMethod') == 'Bank transfer (automatic)' %}selected{% endif %}>Automatic Bank Transfer</option>
+            <option value="Credit card (automatic)" {% if form_data.get('PaymentMethod') == 'Credit card (automatic)' %}selected{% endif %}>Automatic Credit Card Payment</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Monthly Bill ($)</label>
+          <input type="number" step="0.01" name="MonthlyCharges" placeholder="Example: $70.50" value="{{ form_data.get('MonthlyCharges','') }}" required />
+        </div>
+
+        <div class="field">
+          <label>Total Amount Paid ($)</label>
+          <input type="number" step="0.01" name="TotalCharges" placeholder="Example: $850.75" value="{{ form_data.get('TotalCharges','') }}" required />
+        </div>
+
+        <button type="submit" class="predict-btn">🚀 Predict Churn</button>
+      </form>
+    </section>
+
+    <aside class="result-panel">
+      <h2>Prediction Summary</h2>
+
+      {% if result %}
+      <div class="result-box">
+        <div class="circle">
+          <span>{{ probability }}%</span>
+          <small>Churn Chance</small>
+        </div>
+
+        <div class="result-text">
+          {% if 'Churn' in result %}
+          <p>Customer may leave the company</p>
+          <h3>HIGH CHURN RISK</h3>
+          {% else %}
+          <p>Customer will likely continue</p>
+          <h3>LOW CHURN RISK</h3>
+          {% endif %}
+          <span class="risk">{{ risk }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-box">
+        <h3>No Prediction Yet</h3>
+        <p>Fill customer details and click Predict Churn.</p>
+      </div>
+      {% endif %}
+
+      <div class="offer-card">
+        <h2>Customer Retention Suggestions</h2>
+
+        {% if result and 'Churn' in result %}
+        <p>How can the company retain this customer?</p>
+        <ul>
+          <li>🎁 Offer 15–20% discount for next 3 months</li>
+          <li>📞 Provide priority customer support</li>
+          <li>🔐 Give free Internet Security trial</li>
+          <li>📦 Suggest 1 Year Subscription Plan</li>
+          <li>⭐ Add loyalty cashback or reward points</li>
+        </ul>
+        {% elif result %}
+        <p>This customer is likely to stay. Maintain engagement:</p>
+        <ul>
+          <li>✅ Maintain good service quality</li>
+          <li>⭐ Offer loyalty rewards</li>
+          <li>📦 Suggest useful bundle upgrades</li>
+        </ul>
+        {% else %}
+        <p>Retention suggestions will appear here after prediction.</p>
+        {% endif %}
+      </div>
+
+      {% if error %}
+      <div class="error-card">{{ error }}</div>
+      {% endif %}
+    </aside>
+
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
