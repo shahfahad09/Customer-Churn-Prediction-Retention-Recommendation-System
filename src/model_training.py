@@ -16,17 +16,13 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# ============================
-# Paths
-# ============================
+
+
 MODEL_DIR = r"D:\ML PROJECTS\CustomerChurnPrediction\models"
 RESULTS_DIR = r"D:\ML PROJECTS\CustomerChurnPrediction\results"
 
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# ============================
-# Load Processed Data
-# ============================
 X_train = joblib.load(os.path.join(MODEL_DIR, "X_train_processed.pkl"))
 X_test = joblib.load(os.path.join(MODEL_DIR, "X_test_processed.pkl"))
 y_train = joblib.load(os.path.join(MODEL_DIR, "y_train.pkl"))
@@ -36,9 +32,7 @@ print("Data loaded successfully")
 print("Train shape:", X_train.shape)
 print("Test shape:", X_test.shape)
 
-# ============================
-# Models
-# ============================
+
 models = {
     "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
     "Decision Tree": DecisionTreeClassifier(random_state=42),
@@ -48,9 +42,6 @@ models = {
 
 results = []
 
-# ============================
-# Train and Evaluate
-# ============================
 for model_name, model in models.items():
     print("\n" + "=" * 50)
     print(f"Training: {model_name}")
@@ -88,9 +79,7 @@ for model_name, model in models.items():
     print("\nConfusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-# ============================
-# Save Results
-# ============================
+
 results_df = pd.DataFrame(results)
 results_df = results_df.sort_values(by="ROC-AUC", ascending=False)
 
@@ -102,9 +91,6 @@ print("Model Comparison")
 print("=" * 50)
 print(results_df)
 
-# ============================
-# Save Best Model
-# ============================
 best_model_name = results_df.iloc[0]["Model"]
 best_model = models[best_model_name]
 
