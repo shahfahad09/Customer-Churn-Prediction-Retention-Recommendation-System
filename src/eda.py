@@ -4,32 +4,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# ============================
+
 # Paths
-# ============================
+
 DATA_PATH = r"D:\ML PROJECTS\CustomerChurnPrediction\Data\cleaned_customer_churn.csv"
 IMAGE_DIR = r"D:\ML PROJECTS\CustomerChurnPrediction\images\eda_graphs"
 
-# ============================
+
 # Prepare Image Folder
-# ============================
 if os.path.exists(IMAGE_DIR):
     shutil.rmtree(IMAGE_DIR)
 
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-# ============================
 # Load Dataset
-# ============================
 df = pd.read_csv(DATA_PATH)
 
 sns.set_style("whitegrid")
 plt.rcParams["figure.figsize"] = (8, 5)
 
-
-# ============================
-# Helper Functions
-# ============================
 def save_plot(filename):
     path = os.path.join(IMAGE_DIR, filename)
     plt.tight_layout()
@@ -79,9 +72,7 @@ def plot_hist(feature, title, filename, xlabel):
     save_plot(filename)
 
 
-# ============================
-# 1. Target Variable Analysis
-# ============================
+# Target Variable Analysis
 plt.figure(figsize=(6, 5))
 
 ax = sns.countplot(data=df, x="Churn")
@@ -114,9 +105,7 @@ plt.ylabel("")
 save_plot("02_churn_percentage.png")
 
 
-# ============================
 # 2. Categorical Feature Analysis
-# ============================
 plot_count("gender", "Gender vs Customer Churn", "03_gender_vs_churn.png", figsize=(6, 5))
 
 plot_count("SeniorCitizen", "Senior Citizen vs Customer Churn", "04_senior_citizen_vs_churn.png", figsize=(6, 5))
@@ -138,9 +127,7 @@ plot_count("PaymentMethod", "Payment Method vs Customer Churn", "11_payment_meth
 plot_count("PaperlessBilling", "Paperless Billing vs Customer Churn", "12_paperless_billing_vs_churn.png", figsize=(6, 5))
 
 
-# ============================
-# 3. Numerical Feature Analysis
-# ============================
+
 plot_hist(
     "tenure",
     "Tenure Distribution by Churn",
